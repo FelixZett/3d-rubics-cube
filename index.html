@@ -47,6 +47,9 @@
             cubes[i].position.x = i%3-1;
             cubes[i].position.y = Math.ceil(i/3)%3-1;
             cubes[i].position.z = Math.ceil(i/9)%3-1;
+            var edges = new THREE.EdgesGeometry( geometry );
+            var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
+            cubes[i].add( line );
             cubePivot.add(cubes[i])
         }
 
@@ -58,7 +61,6 @@
             cubePivot.rotation.x = THREE.Math.degToRad(theta);
             cubePivot.rotation.y = THREE.Math.degToRad(theta + 120);
             cubePivot.rotation.z = THREE.Math.degToRad(theta + 240);
-
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }
