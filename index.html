@@ -8,7 +8,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background-color: black;
+            background-color: white;
         }
 
         canvas {
@@ -22,7 +22,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.js"></script>
     <script>
         var scene = new THREE.Scene();
-        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        var camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
         var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true});
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
@@ -44,23 +44,20 @@
         var cubes = []
         for(var i = 0; i < 27; i++) {
             cubes[i] = new THREE.Mesh(geometry, material);
-            cubes[i].position.x = i%3-1;
-            cubes[i].position.y = Math.ceil(i/3)%3-1;
-            cubes[i].position.z = Math.ceil(i/9)%3-1;
+            cubes[i].position.set(i%3-1, Math.ceil(i/3)%3-1, Math.ceil(i/9)%3-1);
             var edges = new THREE.EdgesGeometry( geometry );
             var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
             cubes[i].add( line );
-            cubePivot.add(cubes[i])
+            cubePivot.add(cubes[i]);
         }
-
-        var light = new THREE.AmbientLight(0x404040); // soft white light
-        scene.add(light);
 
         function animate() {
             theta = Date.now()/50;
-            cubePivot.rotation.x = THREE.Math.degToRad(theta);
-            cubePivot.rotation.y = THREE.Math.degToRad(theta + 120);
-            cubePivot.rotation.z = THREE.Math.degToRad(theta + 240);
+            cubePivot.rotation.set(
+                THREE.Math.degToRad(theta),
+                THREE.Math.degToRad(theta*2),
+                THREE.Math.degToRad(theta*0.5)
+            );
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }
