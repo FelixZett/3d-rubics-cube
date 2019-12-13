@@ -36,8 +36,6 @@
         }
         var material = new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: THREE.FaceColors });
 
-        var materialx = new THREE.MeshBasicMaterial({ color: 0x111111 });
-
         camera.position.z = 5
 
         //create cube parent object
@@ -73,7 +71,6 @@
             }
             //Debug logging
             cubex = cubes[-1][1][1];
-            cubex.material = materialx;
             m = new THREE.Matrix4().getInverse(cubePivot.matrixWorld).multiply(cubex.matrixWorld.clone())
             v = new THREE.Vector3();
             v.setFromMatrixPosition(m).round();
