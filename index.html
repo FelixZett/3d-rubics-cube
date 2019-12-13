@@ -23,44 +23,85 @@
     <script>
         var scene = new THREE.Scene();
         var camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.1, 1000);
-        var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true});
+        var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var colors = [0x009B48, 0xB90000, 0x0045AD, 0xFF5900, 0xFFFFFF, 0xFFD500];
         for (var i = 0; i < colors.length; i++) {
-            faceindex = i*2
+            faceindex = i * 2
             geometry.faces[faceindex].color.setHex(colors[i]);
-            geometry.faces[faceindex+1].color.setHex(colors[i]);
+            geometry.faces[faceindex + 1].color.setHex(colors[i]);
         }
         var material = new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: THREE.FaceColors });
 
+        var materialx = new THREE.MeshBasicMaterial({ color: 0x111111 });
+
         camera.position.z = 5
 
+        //create cube parent object
         cubePivot = new THREE.Object3D();
         scene.add(cubePivot);
+        rotationPivot = new THREE.Object3D();
+        cubePivot.add(rotationPivot);
 
-        var cubes = []
-        for(var i = 0; i < 27; i++) {
-            cubes[i] = new THREE.Mesh(geometry, material);
-            cubes[i].position.set(i%3-1, Math.ceil(i/3)%3-1, Math.ceil(i/9)%3-1);
-            var edges = new THREE.EdgesGeometry( geometry );
-            var line = new THREE.LineSegments( edges, new THREE.LineBasicMaterial( { color: 0x000000 } ) );
-            cubes[i].add( line );
-            cubePivot.add(cubes[i]);
+        //create the cubes
+        var cubes = [];
+        for (var i = -1; i <= 1; i++) {
+            cubes[i] = [];
+            for (var j = -1; j <= 1; j++) {
+                cubes[i][j] = [];
+                for (var k = -1; k <= 1; k++) {
+                    cube = new THREE.Mesh(geometry, material);
+                    cube.position.set(i, j, k);
+                    var edges = new THREE.EdgesGeometry(geometry);
+                    var line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000 }));
+                    cube.add(line);
+                    cubePivot.add(cube);
+                    cubes[i][j][k] = cube;
+                }
+            }
+        }
+
+        function doMove() {
+            rotationPivot.rotation.z = Date.now() / 1000; //THREE.Math.degToRad(0);
+            for (var i = -1; i <= 1; i++) {
+                for (var j = -1; j <= 1; j++) {
+                    rotationPivot.add(cubes[i][j][1]);
+                }
+            }
+            //Debug logging
+            cubex = cubes[-1][1][1];
+            cubex.material = materialx;
+            m = new THREE.Matrix4().getInverse(cubePivot.matrixWorld).multiply(cubex.matrixWorld.clone())
+            v = new THREE.Vector3();
+            v.setFromMatrixPosition(m).round();
+        }
+
+        window.addEventListener('resize', onWindowResize, false);
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
         function animate() {
-            theta = Date.now()/50;
-            cubePivot.rotation.set(
-                THREE.Math.degToRad(theta),
-                THREE.Math.degToRad(theta*2),
-                THREE.Math.degToRad(theta*0.5)
-            );
+            doMove();
+            {
+                theta = Date.now() / 50;
+                cubePivot.rotation.set(
+                    THREE.Math.degToRad(theta),
+                    THREE.Math.degToRad(theta * 2),
+                    THREE.Math.degToRad(theta * 0.5)
+                );
+                cubePivot.position.x = 0
+            }
             requestAnimationFrame(animate);
             renderer.render(scene, camera);
         }
+
         animate();
     </script>
 </body>
